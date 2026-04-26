@@ -264,7 +264,8 @@ export default function BackupsPage() {
               <tr><td colSpan={6} className="px-6 py-20 text-center text-muted-foreground">No secure archives found in this region.</td></tr>
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   );
