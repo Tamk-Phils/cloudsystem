@@ -5,6 +5,20 @@ The **Cloud System** is a mission-critical infrastructure management platform de
 
 ---
 
+## 🚀 Technology Stack
+The system is built using a modern, scalable stack designed for high-performance data operations:
+
+- **Frontend Framework**: [Next.js](https://nextjs.org/) (App Router, React 18)
+- **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict typing for data safety)
+- **Database & Auth**: [Supabase](https://supabase.com/) (Managed PostgreSQL)
+- **Cloud Infrastructure**: [AWS S3](https://aws.amazon.com/s3/) (Military-grade cloud storage)
+- **Real-time Communication**: [Socket.io](https://socket.io/) (Bi-directional binary streaming)
+- **Styling & UI**: [Tailwind CSS](https://tailwindcss.com/) & [Lucide React](https://lucide.dev/)
+- **Data Protection**: AES-256-GCM (In-memory hardware-accelerated encryption)
+- **Database Utilities**: `pg_dump`, `pg_restore`, and `psql` (Native high-speed binary tools)
+
+---
+
 ## 2. System Architecture
 The system utilizes a **Hybrid Cloud-Edge** architecture, balancing the performance of local operations with the durability of global cloud storage.
 
@@ -34,7 +48,7 @@ graph TD
 ### ⚙️ Core Engines (`lib/`)
 - **`backup/engine.ts` (The Guardian)**: Generates high-reliability SQL dumps. It detects changes in the registry and automatically labels backups with context (e.g., *"Post-Registration: Lillian"*).
 - **`restore/engine.ts` (The Reconstructor)**: A dual-engine handler that supports both binary and SQL recovery paths. It performs an atomic "Purge-and-Inject" sequence to rebuild the database schema without manual intervention.
-- **`encryption.ts`**: Implements industrial-grade AES-256-GCM encryption. All data is encrypted before transmission, ensuring that the cloud provider (AWS) never sees the raw registry data.
+- **`encryption.ts`**: Implements industrial-grade AES-256-GCM encryption. All data is encrypted before transmission, ensuring that the cloud provider (AWS) never sees the raw data.
 
 ---
 
