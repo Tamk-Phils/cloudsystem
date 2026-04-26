@@ -36,7 +36,10 @@ export async function GET(req: Request) {
 
     const originalFilename = backup.filename.replace(".enc", "");
 
-    return new Response(decryptedBuffer, {
+    // Convert Buffer to Uint8Array for BodyInit compatibility
+    const body = new Uint8Array(decryptedBuffer);
+
+    return new Response(body, {
       headers: {
         "Content-Type": "application/octet-stream",
         "Content-Disposition": `attachment; filename="${originalFilename}"`,
