@@ -1,6 +1,6 @@
-import { performDatabaseBackup } from "./lib/backup/engine";
-import { performDatabaseRestore } from "./lib/restore/engine";
-import { supabaseAdmin } from "./lib/supabase/admin";
+import { performDatabaseBackup } from "../lib/backup/engine";
+import { performDatabaseRestore } from "../lib/restore/engine";
+import { supabaseAdmin } from "../lib/supabase/admin";
 import * as dotenv from "dotenv";
 
 dotenv.config();
