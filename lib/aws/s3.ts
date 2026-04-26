@@ -2,14 +2,14 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
+  region: process.env.STORAGE_AWS_REGION!,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.STORAGE_AWS_SECRET_ACCESS_KEY!,
   },
 });
 
-export const bucketName = process.env.AWS_S3_BUCKET_NAME!;
+export const bucketName = process.env.STORAGE_AWS_BUCKET_NAME!;
 
 /**
  * Uploads a Buffer to AWS S3.
