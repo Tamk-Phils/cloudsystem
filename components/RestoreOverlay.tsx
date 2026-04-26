@@ -51,7 +51,7 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
 
   return (
     <div className="fixed inset-0 bg-background/95 backdrop-blur-2xl z-[100] flex items-center justify-center p-4 transition-all animate-in fade-in duration-200">
-      <div className="premium-card max-w-xl w-full p-10 flex flex-col items-center border-primary/20 shadow-[0_0_80px_rgba(129,92,255,0.15)]">
+      <div className="premium-card max-w-xl w-full p-6 md:p-10 flex flex-col items-center border-primary/20 shadow-[0_0_80px_rgba(129,92,255,0.15)] overflow-y-auto max-h-[90vh]">
         {isCompleted ? (
           <div className="bg-emerald-500/10 text-emerald-500 p-5 rounded-2xl mb-8 border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
             <CheckCircle2 size={48} />
@@ -67,10 +67,10 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
           </div>
         )}
 
-        <h2 className="text-3xl font-bold font-outfit mb-3 tracking-tight">
+        <h2 className="text-2xl md:text-3xl font-bold font-outfit mb-3 tracking-tight text-center">
           {isCompleted ? "Restoration Successful" : isFailed ? "Restoration Halted" : "System Rebuild in Progress"}
         </h2>
-        <p className="text-muted-foreground mb-8 text-center text-sm leading-relaxed max-w-[300px]">
+        <p className="text-muted-foreground mb-6 md:mb-8 text-center text-xs md:text-sm leading-relaxed max-w-[300px]">
           {isCompleted 
             ? "Registry integrity has been fully verified. All records are now active." 
             : isFailed 
@@ -87,7 +87,7 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
               />
             </div>
 
-            <div className="w-full bg-black/60 rounded-2xl border border-white/[0.05] p-5 font-mono text-[10px] text-emerald-500/80 h-48 overflow-y-auto flex flex-col gap-1.5 text-left scrollbar-hide mb-8 shadow-inner relative group">
+            <div className="w-full bg-black/60 rounded-2xl border border-white/[0.05] p-4 md:p-5 font-mono text-[9px] md:text-[10px] text-emerald-500/80 h-40 md:h-48 overflow-y-auto flex flex-col gap-1.5 text-left scrollbar-hide mb-8 shadow-inner relative group">
               <div className="sticky top-0 bg-black/80 backdrop-blur-md flex items-center justify-between text-white/40 mb-3 border-b border-white/5 pb-2 text-[9px] font-bold uppercase tracking-widest">
                 <div className="flex items-center gap-2">
                   <Terminal size={12} />

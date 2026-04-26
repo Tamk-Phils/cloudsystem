@@ -151,22 +151,22 @@ export default function BackupsPage() {
         />
       )}
 
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-0">
         <div>
-          <h1 className="text-4xl font-bold font-outfit tracking-tight">Infrastructure Inventory</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Full audit trail of your cloud archives and snapshots.</p>
+          <h1 className="text-3xl md:text-4xl font-bold font-outfit tracking-tight">Infrastructure Inventory</h1>
+          <p className="text-muted-foreground mt-2 text-base md:text-lg">Full audit trail of your cloud archives and snapshots.</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <button 
             onClick={triggerDatabaseBackup}
             disabled={backingUp}
-            className="bg-primary text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 active:scale-[0.98] disabled:opacity-50"
+            className="w-full sm:w-auto bg-primary text-white px-8 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 active:scale-[0.98] disabled:opacity-50"
           >
             <Database className="w-4 h-4 fill-current" /> {backingUp ? "Snapshotting..." : "Database Snapshot"}
           </button>
           
           <label className={cn(
-            "bg-white/[0.05] text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-white/[0.1] transition-all border border-white/10 cursor-pointer active:scale-[0.98]",
+            "w-full sm:w-auto bg-white/[0.05] text-white px-8 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-white/[0.1] transition-all border border-white/10 cursor-pointer active:scale-[0.98]",
             uploading && "opacity-50 pointer-events-none"
           )}>
             <Plus className="w-4 h-4" /> {uploading ? "Uploading..." : "Upload Files"}
@@ -190,7 +190,8 @@ export default function BackupsPage() {
       </div>
 
       <div className="premium-card overflow-hidden">
-        <table className="w-full text-left">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
           <thead>
             <tr className="border-b border-white/[0.05] bg-white/[0.01]">
               <th className="px-6 py-5 font-bold text-xs uppercase tracking-widest text-muted-foreground">Entity Identifier</th>

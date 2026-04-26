@@ -103,30 +103,30 @@ export default function SchoolPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-0">
         <div>
-          <h1 className="text-4xl font-bold font-outfit tracking-tight">School Management</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Operational database for university records and data loss simulation.</p>
+          <h1 className="text-3xl md:text-4xl font-bold font-outfit tracking-tight">School Management</h1>
+          <p className="text-muted-foreground mt-2 text-base md:text-lg">Operational database for university records and data loss simulation.</p>
         </div>
-        <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 border border-emerald-500/20 uppercase tracking-widest">
+        <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 border border-emerald-500/20 uppercase tracking-widest whitespace-nowrap">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
           Live Connection Active
         </div>
       </div>
 
       {liveStatus && (
-        <div className="bg-primary/10 border border-primary/20 p-6 rounded-xl flex items-center justify-between animate-in slide-in-from-top-4 duration-300">
+        <div className="bg-primary/10 border border-primary/20 p-4 md:p-6 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-300">
           <div className="flex items-center gap-4">
             <div className="bg-primary p-2.5 rounded-lg text-white">
               <Cloud className="w-5 h-5 animate-bounce" />
             </div>
             <div>
               <p className="text-sm font-bold text-primary font-outfit">Automated Snapshot in Progress...</p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">{liveStatus.status}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider">{liveStatus.status}</p>
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="w-64 h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
+            <div className="flex-1 md:w-64 h-1.5 bg-white/5 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-primary transition-all duration-500" 
                 style={{ width: `${liveStatus.progress}%` }} 
@@ -153,8 +153,8 @@ export default function SchoolPage() {
       </div>
 
       <div className="premium-card overflow-hidden">
-        <div className="p-6 border-b border-white/[0.05] bg-white/[0.01] flex justify-between items-center">
-          <div className="relative w-96">
+        <div className="p-4 md:p-6 border-b border-white/[0.05] bg-white/[0.01] flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+          <div className="relative flex-1 md:max-w-md">
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input 
               type="text" 
@@ -164,7 +164,7 @@ export default function SchoolPage() {
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-xl shadow-primary/10 active:scale-[0.98]"
+            className="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-xl shadow-primary/10 active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" /> Register New
           </button>

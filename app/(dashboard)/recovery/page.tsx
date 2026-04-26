@@ -78,12 +78,12 @@ export default function RecoveryPage() {
       )}
 
       <div>
-        <h1 className="text-4xl font-bold tracking-tight font-outfit">System Recovery</h1>
-        <p className="text-muted-foreground mt-2 text-lg">Full-scale infrastructure restoration from encrypted cloud snapshots.</p>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-outfit">System Recovery</h1>
+        <p className="text-muted-foreground mt-2 text-base md:text-lg">Full-scale infrastructure restoration from encrypted cloud snapshots.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="premium-card p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
+        <div className="premium-card p-4 md:p-8">
           <div className="flex items-center gap-3 mb-8">
             <div className="bg-primary/10 text-primary p-3 rounded-xl border border-primary/20">
               <RefreshCcw className="w-6 h-6" />
@@ -133,7 +133,7 @@ export default function RecoveryPage() {
           </div>
         </div>
 
-        <div className="premium-card p-8">
+        <div className="premium-card p-4 md:p-8">
           <div className="flex items-center gap-3 mb-8">
             <div className="bg-emerald-500/10 text-emerald-500 p-3 rounded-xl border border-emerald-500/20">
               <History className="w-6 h-6" />
@@ -147,25 +147,25 @@ export default function RecoveryPage() {
                 No restoration records found in the current audit log.
               </div>
             ) : history.map((log) => (
-              <div key={log.id} className="p-5 bg-white/[0.02] border border-white/[0.05] rounded-2xl flex justify-between items-center group hover:bg-white/[0.04] transition-all">
+              <div key={log.id} className="p-4 md:p-5 bg-white/[0.02] border border-white/[0.05] rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group hover:bg-white/[0.04] transition-all">
                 <div className="flex gap-4 items-center">
-                   <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
+                   <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500 shrink-0">
                       <FileCode size={18} />
                    </div>
-                   <div>
-                      <p className="text-sm font-bold font-outfit">{log.status === "completed" ? "Infrastructure Restored" : "Restoration Attempt"}</p>
+                   <div className="min-w-0">
+                      <p className="text-sm font-bold font-outfit truncate">{log.status === "completed" ? "Infrastructure Restored" : "Restoration Attempt"}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
                         {new Date(log.restored_at).toLocaleString()}
                       </p>
                       {log.backups && (
-                        <p className="text-[9px] text-primary/50 mt-1 font-mono truncate max-w-[200px]">
+                        <p className="text-[9px] text-primary/50 mt-1 font-mono truncate max-w-[150px] sm:max-w-[200px]">
                            Source: {log.backups.description || log.backups.filename}
                         </p>
                       )}
                    </div>
                 </div>
                 <div className={cn(
-                  "px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5",
+                  "px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 self-end sm:self-auto",
                   log.status === "completed" ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "bg-primary/10 text-primary border border-primary/20"
                 )}>
                   {log.status === "completed" ? <CheckCircle2 size={12} /> : <Clock size={12} />} {log.status}

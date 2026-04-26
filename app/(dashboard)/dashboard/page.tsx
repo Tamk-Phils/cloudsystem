@@ -143,15 +143,15 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
         <div>
-          <h1 className="text-4xl font-bold font-outfit tracking-tight">System Dashboard</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Real-time overview of your cloud infrastructure.</p>
+          <h1 className="text-3xl md:text-4xl font-bold font-outfit tracking-tight">System Dashboard</h1>
+          <p className="text-muted-foreground mt-2 text-base md:text-lg">Real-time overview of your cloud infrastructure.</p>
         </div>
         <button 
           onClick={triggerBackup}
           disabled={loading}
-          className="bg-primary text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 disabled:opacity-50 active:scale-[0.98]"
+          className="w-full sm:w-auto bg-primary text-white px-8 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 disabled:opacity-50 active:scale-[0.98]"
         >
           {loading ? "Processing..." : <><Play className="w-4 h-4 fill-current" /> Run Backup</>}
         </button>
@@ -180,8 +180,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 premium-card p-8">
-          <div className="flex justify-between items-center mb-8">
+        <div className="lg:col-span-2 premium-card p-4 md:p-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
             <h3 className="text-xl font-bold font-outfit">Storage Growth</h3>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -193,7 +193,7 @@ export default function DashboardPage() {
           <StorageChart data={chartData} />
         </div>
 
-        <div className="premium-card p-8 flex flex-col">
+        <div className="premium-card p-4 md:p-8 flex flex-col">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-xl font-bold font-outfit">Recent Backups</h3>
             <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
