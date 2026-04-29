@@ -101,7 +101,7 @@ export async function performDatabaseRestore(backupId: string) {
       for (const [tableName, rows] of Object.entries(virtualImage.tables)) {
         logToFile(`Restoring table: ${tableName} (${(rows as any[]).length} rows)`);
         await supabaseAdmin.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
-        const { error } = await supabaseAdmin.from(tableName).insert(rows);
+        const { error } = await supabaseAdmin.from(tableName).insert(rows as any[]);
         if (error) throw error;
       }
     } else {
