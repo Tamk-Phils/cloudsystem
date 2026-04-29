@@ -15,7 +15,6 @@ import {
   X,
   AlertTriangle
 } from "lucide-react";
-import io from "socket.io-client";
 
 export default function SchoolPage() {
   const [activeTab, setActiveTab] = useState<"students" | "staff">("students");
@@ -28,27 +27,8 @@ export default function SchoolPage() {
   const [formData, setFormData] = useState({ full_name: "", id: "", department: "", email: "", designation: "" });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
-    if (isNetlify) return;
-
-    const socket = io({
-      reconnectionAttempts: 3,
-      timeout: 5000,
-      transports: ["websocket", "polling"]
-    });
-
-    socket.on("connect_error", () => {
-      socket.disconnect();
-    });
-
-    socket.on("backup_status", (data) => {
-      setLiveStatus(data);
-      if (data.status === "completed") {
-        setTimeout(() => setLiveStatus(null), 3000);
-      }
-    });
-    return () => { socket.disconnect(); };
+    // REAL-TIME SOCKETS REMOVED FOR NETLIFY COMPATIBILITY (PREVENTS 404s)
+    fetchData();
   }, []);
 
   const fetchData = async () => {

@@ -17,7 +17,6 @@ import {
   FileCode,
   Archive
 } from "lucide-react";
-import io from "socket.io-client";
 import dynamic from "next/dynamic";
 import RestoreOverlay from "@/components/RestoreOverlay";
 
@@ -53,40 +52,12 @@ export default function DashboardPage() {
         }
       });
 
-    // SILENCE SOCKET ON NETLIFY
-    const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
-    
-    if (isNetlify) {
-      console.log("Netlify detected: Disabling real-time sockets to prevent 404 polling errors.");
-      return;
-    }
+    // REAL-TIME SOCKETS REMOVED FOR NETLIFY COMPATIBILITY (PREVENTS 404s)
+    const interval = setInterval(() => {
+      fetchRecentBackups();
+    }, 10000); // Fallback polling every 10s
 
-    const socket = io({
-      reconnectionAttempts: 3,
-      timeout: 5000,
-      transports: ["websocket", "polling"],
-      autoConnect: false
-    });
-
-    socket.on("connect_error", () => {
-      socket.disconnect();
-    });
-
-    socket.on("backup_status", (data) => {
-      if (data.status === "completed") {
-        setTimeout(() => window.location.reload(), 2000); 
-      }
-    });
-
-    socket.on("restore_status", (data) => {
-      setRestoreState({ status: data.status, progress: data.progress });
-    });
-
-    socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const triggerBackup = async () => {

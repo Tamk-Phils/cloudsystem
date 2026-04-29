@@ -20,7 +20,6 @@ import {
   Plus,
   ShieldCheck
 } from "lucide-react";
-import io from "socket.io-client";
 import RestoreOverlay from "@/components/RestoreOverlay";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -36,22 +35,7 @@ export default function BackupsPage() {
   const [backingUp, setBackingUp] = useState(false);
   const [restoreState, setRestoreState] = useState<{ status: string; progress: number } | null>(null);
 
-  useEffect(() => {
     fetchBackups();
-    
-    const socket = io();
-    socket.on("restore_status", (data) => {
-      setRestoreState({ status: data.status, progress: data.progress });
-    });
-
-    socket.on("backup_status", (data) => {
-      if (data.status === "completed") {
-        fetchBackups();
-        setBackingUp(false);
-      }
-    });
-
-    return () => { socket.disconnect(); };
   }, []);
 
   const fetchBackups = () => {

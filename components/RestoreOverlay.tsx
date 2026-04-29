@@ -2,7 +2,6 @@
 
 import { CheckCircle2, Loader2, AlertCircle, Terminal } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import io from "socket.io-client";
 
 interface RestoreOverlayProps {
   initialStatus: string;
@@ -28,32 +27,7 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
   }, [initialStatus, initialProgress]);
 
   useEffect(() => {
-    const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
-    if (isNetlify) return;
-
-    const socket = io({
-      reconnectionAttempts: 3,
-      timeout: 5000,
-      transports: ["websocket", "polling"]
-    });
-    
-    socket.on("connect_error", () => {
-      socket.disconnect();
-    });
-
-    socket.on("restore_status", (data) => {
-      // Only update if we haven't reached a final state via props
-      setStatus(current => {
-        if (current === "completed" || current.toLowerCase().includes("failed")) return current;
-        setProgress(data.progress);
-        if (data.log) {
-          setLogs(prev => [...prev, data.log].slice(-50));
-        }
-        return data.status;
-      });
-    });
-
-    return () => { socket.disconnect(); };
+    // REAL-TIME SOCKETS REMOVED FOR NETLIFY COMPATIBILITY (PREVENTS 404s)
   }, []);
 
   useEffect(() => {
