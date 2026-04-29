@@ -34,8 +34,8 @@ export async function performDatabaseBackup(customDescription?: string) {
   logToFile(">>> Starting high-reliability SQL backup...");
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 
-  const filename = `db-backup-${timestamp}.sql`;
-  const encryptedFilename = `${filename}.enc`;
+  let filename = `db-backup-${timestamp}.sql`;
+  let encryptedFilename = `${filename}.enc`;
   const tempPath = path.join("/tmp", filename);
 
   try {
