@@ -200,10 +200,14 @@ export default function BackupsPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold font-outfit block">{backup.description || backup.filename.replace(".enc", "")}</span>
-                        {backup.filename.includes(".json") ? (
-                          <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1 py-0.5 rounded border border-emerald-500/20 font-bold uppercase tracking-tighter">Netlify-Ready</span>
+                        {backup.type === "database" ? (
+                          backup.filename.includes(".json") ? (
+                            <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1 py-0.5 rounded border border-emerald-500/20 font-bold uppercase tracking-tighter">Netlify-Ready</span>
+                          ) : (
+                            <span className="text-[8px] bg-amber-500/10 text-amber-500 px-1 py-0.5 rounded border border-amber-500/20 font-bold uppercase tracking-tighter">Full SQL</span>
+                          )
                         ) : (
-                          <span className="text-[8px] bg-amber-500/10 text-amber-500 px-1 py-0.5 rounded border border-amber-500/20 font-bold uppercase tracking-tighter">Full SQL</span>
+                          <span className="text-[8px] bg-purple-500/10 text-purple-500 px-1 py-0.5 rounded border border-purple-500/20 font-bold uppercase tracking-tighter">Encrypted File</span>
                         )}
                       </div>
                       <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[150px] block" title={backup.filename}>{backup.filename}</span>

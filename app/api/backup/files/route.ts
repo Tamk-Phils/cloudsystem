@@ -14,24 +14,30 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     
-    // Encrypt
+    // Check if the user is uploading an already encrypted database backup
+    const isDatabaseBackup = file.name.startsWith("db-backup-") && file.name.endsWith(".enc");
+    
+    // Encrypt only if it's a regular file
     const encryptionKey = process.env.BACKUP_ENCRYPTION_KEY!;
-    const encryptedBuffer = encrypt(buffer, encryptionKey);
+    const finalBuffer = isDatabaseBackup ? buffer : encrypt(buffer, encryptionKey);
 
     // Upload to S3
     const timestamp = Date.now();
-    const s3Key = `backups/files/${timestamp}-${file.name}.enc`;
-    await uploadToS3(s3Key, encryptedBuffer, "application/octet-stream");
+    const finalFilename = isDatabaseBackup ? file.name : `${file.name}.enc`;
+    const s3Key = `backups/${isDatabaseBackup ? 'database' : 'files'}/${timestamp}-${finalFilename}`;
+    
+    await uploadToS3(s3Key, finalBuffer, "application/octet-stream");
 
     // Save metadata
     const { data: backup, error } = await supabaseAdmin
       .from("backups")
       .insert({
-        filename: `${file.name}.enc`,
-        size: encryptedBuffer.length,
+        filename: finalFilename,
+        size: finalBuffer.length,
         status: "completed",
         s3_key: s3Key,
-        type: "files",
+        type: isDatabaseBackup ? "database" : "files",
+        description: isDatabaseBackup ? "Uploaded Backup Archive" : "Uploaded File"
       })
       .select()
       .single();
