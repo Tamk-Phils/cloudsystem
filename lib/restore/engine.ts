@@ -186,6 +186,7 @@ export async function performDatabaseRestore(backupId: string) {
       proc.on("error", reject);
       s3Stream.on("error", reject);
     });
+  }
 
     const duration = (Date.now() - startTime) / 1000;
     emitRestoreStatus("completed", 100, `Restoration finalized in ${duration.toFixed(2)}s`, true);
