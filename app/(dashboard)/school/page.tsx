@@ -29,6 +29,9 @@ export default function SchoolPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
+    if (isNetlify) return;
+
     const socket = io({
       reconnectionAttempts: 3,
       timeout: 5000,
@@ -36,7 +39,6 @@ export default function SchoolPage() {
     });
 
     socket.on("connect_error", () => {
-      console.warn("Socket connection failed. Real-time updates might be disabled.");
       socket.disconnect();
     });
 

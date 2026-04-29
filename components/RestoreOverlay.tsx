@@ -28,6 +28,9 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
   }, [initialStatus, initialProgress]);
 
   useEffect(() => {
+    const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
+    if (isNetlify) return;
+
     const socket = io({
       reconnectionAttempts: 3,
       timeout: 5000,
@@ -35,7 +38,6 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
     });
     
     socket.on("connect_error", () => {
-      console.warn("Socket connection failed. Progress logs might be disabled.");
       socket.disconnect();
     });
 

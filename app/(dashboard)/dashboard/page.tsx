@@ -53,6 +53,14 @@ export default function DashboardPage() {
         }
       });
 
+    // SILENCE SOCKET ON NETLIFY
+    const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
+    
+    if (isNetlify) {
+      console.log("Netlify detected: Disabling real-time sockets to prevent 404 polling errors.");
+      return;
+    }
+
     const socket = io({
       reconnectionAttempts: 3,
       timeout: 5000,
@@ -60,7 +68,6 @@ export default function DashboardPage() {
     });
 
     socket.on("connect_error", () => {
-      console.warn("Socket connection failed. Real-time updates might be disabled.");
       socket.disconnect();
     });
 
