@@ -64,7 +64,8 @@ export default function DashboardPage() {
     const socket = io({
       reconnectionAttempts: 3,
       timeout: 5000,
-      transports: ["websocket", "polling"]
+      transports: ["websocket", "polling"],
+      autoConnect: false
     });
 
     socket.on("connect_error", () => {
@@ -73,13 +74,15 @@ export default function DashboardPage() {
 
     socket.on("backup_status", (data) => {
       if (data.status === "completed") {
-        window.location.reload(); 
+        setTimeout(() => window.location.reload(), 2000); 
       }
     });
 
     socket.on("restore_status", (data) => {
       setRestoreState({ status: data.status, progress: data.progress });
     });
+
+    socket.connect();
 
     return () => {
       socket.disconnect();
@@ -228,12 +231,17 @@ export default function DashboardPage() {
                       <FileCode size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold truncate flex-1 min-w-0 group-hover:text-primary transition-colors font-outfit">
-                        {backup.description || backup.filename.replace(".enc", "")}
-                      </p>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-0.5 font-mono">
-                        {new Date(backup.created_at).toLocaleString()}
-                      </p>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-foreground text-sm">{backup.filename}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{new Date(backup.created_at).toLocaleDateString()}</span>
+                          {backup.filename.includes(".json") ? (
+                            <span className="text-[9px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold uppercase">Netlify Compatible</span>
+                          ) : (
+                            <span className="text-[9px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20 font-bold uppercase">Full Infra Only</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0 ml-2 overflow-hidden">

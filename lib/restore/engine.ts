@@ -78,11 +78,25 @@ export async function performDatabaseRestore(backupId: string) {
 
     if (isJson) {
       emitRestoreStatus("Decrypting", 50, "Extracting SDK Virtual Image...", true);
+      
       const chunks: any[] = [];
-      for await (const chunk of s3Stream) {
-        chunks.push(chunk);
+      const reader = s3Stream.getReader ? s3Stream.getReader() : null;
+      
+      if (reader) {
+        // Web Stream API
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+      } else {
+        // Node Stream API
+        for await (const chunk of s3Stream) {
+          chunks.push(chunk);
+        }
       }
-      const encryptedBuffer = Buffer.concat(chunks);
+      
+      const encryptedBuffer = Buffer.concat(chunks.map(c => Buffer.from(c)));
       
       const salt = encryptedBuffer.slice(0, 16);
       const iv = encryptedBuffer.slice(16, 28);
@@ -98,11 +112,26 @@ export async function performDatabaseRestore(backupId: string) {
       const virtualImage = JSON.parse(decrypted.toString());
 
       emitRestoreStatus("Injecting", 70, "Wiping and rebuilding tables...", true);
+      
+      if (!virtualImage.tables) throw new Error("Invalid Snapshot: No table data found in archive.");
+      
       for (const [tableName, rows] of Object.entries(virtualImage.tables)) {
-        logToFile(`Restoring table: ${tableName} (${(rows as any[]).length} rows)`);
-        await supabaseAdmin.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
-        const { error } = await supabaseAdmin.from(tableName).insert(rows as any[]);
-        if (error) throw error;
+        logToFile(`Restoring table: ${tableName} (${(rows as any[] || []).length} rows)`);
+        
+        // Use more specific error reporting
+        const { error: delError } = await supabaseAdmin.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+        if (delError) {
+          logToFile(`Wipe failed for ${tableName}: ${delError.message}`);
+          throw new Error(`Critical: Could not clear ${tableName}. Ensure no foreign key constraints are blocking the wipe.`);
+        }
+        
+        if (rows && (rows as any[]).length > 0) {
+          const { error: insError } = await supabaseAdmin.from(tableName).insert(rows as any[]);
+          if (insError) {
+            logToFile(`Insert failed for ${tableName}: ${insError.message}`);
+            throw new Error(`Critical: Data injection failed for ${tableName}: ${insError.message}`);
+          }
+        }
       }
     } else {
       if (!useBinaryRestore) {
