@@ -61,59 +61,93 @@ export async function performDatabaseRestore(backupId: string) {
     const database = url.pathname.slice(1);
 
     emitRestoreStatus("Checking Environment", 10, "Verifying system binaries...", true);
+    let useBinaryRestore = true;
     try {
       execSync("psql --version");
     } catch (e) {
-      logToFile("psql not found in system PATH.");
-      throw new Error("System Error: psql binary not found. This environment does not support shell-based restoration.");
+      logToFile("psql not found. Switching to Universal SDK Restoration...");
+      useBinaryRestore = false;
     }
 
     emitRestoreStatus("Syncing", 40, "Opening archive stream...", true);
     const s3Stream = await getS3Stream(backup.s3_key) as any;
 
+    const isJson = backup.filename.endsWith(".json.enc");
     const isSql = backup.filename.endsWith(".sql.enc");
-    logToFile(`Detected format: ${isSql ? "Plain SQL" : "Binary Custom"}`);
+    logToFile(`Detected format: ${isJson ? "SDK JSON" : isSql ? "Plain SQL" : "Binary Custom"}`);
 
-    await new Promise((resolve, reject) => {
-      let decipher: crypto.DecipherGCM;
-      let headerRead = false;
-      let buffer = Buffer.alloc(0);
-      let restoreErrorOccurred = false;
+    if (isJson) {
+      emitRestoreStatus("Decrypting", 50, "Extracting SDK Virtual Image...", true);
+      const chunks: any[] = [];
+      for await (const chunk of s3Stream) {
+        chunks.push(chunk);
+      }
+      const encryptedBuffer = Buffer.concat(chunks);
+      
+      const salt = encryptedBuffer.slice(0, 16);
+      const iv = encryptedBuffer.slice(16, 28);
+      const tag = encryptedBuffer.slice(28, 44);
+      const encryptedData = encryptedBuffer.slice(44);
 
-      // Select engine based on format
-      const cmd = isSql ? "psql" : "pg_restore";
-      const args = isSql 
-        ? ["-h", host, "-p", port, "-U", user, "-d", database]
-        : ["-h", host, "-p", port, "-U", user, "-d", database, "--clean", "--if-exists", "--no-owner", "--no-privileges", "--no-acl", "-1"];
+      const key = process.env.BACKUP_ENCRYPTION_KEY!;
+      const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, "sha256");
+      const decipher = crypto.createDecipheriv("aes-256-gcm", derivedKey, iv);
+      decipher.setAuthTag(tag);
+      
+      const decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
+      const virtualImage = JSON.parse(decrypted.toString());
 
-      const proc = spawn(cmd, args, {
-        env: { ...process.env, PGPASSWORD: password },
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+      emitRestoreStatus("Injecting", 70, "Wiping and rebuilding tables...", true);
+      for (const [tableName, rows] of Object.entries(virtualImage.tables)) {
+        logToFile(`Restoring table: ${tableName} (${(rows as any[]).length} rows)`);
+        await supabaseAdmin.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+        const { error } = await supabaseAdmin.from(tableName).insert(rows);
+        if (error) throw error;
+      }
+    } else {
+      if (!useBinaryRestore) {
+        throw new Error("System Error: Cannot restore SQL/Binary backup in this environment (missing psql/pg_restore). Please use a Snapshot backup instead.");
+      }
+      
+      await new Promise((resolve, reject) => {
+        let decipher: crypto.DecipherGCM;
+        let headerRead = false;
+        let buffer = Buffer.alloc(0);
+        let restoreErrorOccurred = false;
 
-      s3Stream.on("data", (chunk: Buffer) => {
-        if (!headerRead) {
-          buffer = Buffer.concat([buffer, chunk]);
-          if (buffer.length >= 44) {
-            const salt = buffer.slice(0, 16);
-            const iv = buffer.slice(16, 28);
-            const tag = buffer.slice(28, 44);
-            const encryptedData = buffer.slice(44);
+        const cmd = isSql ? "psql" : "pg_restore";
+        const args = isSql 
+          ? ["-h", host, "-p", port, "-U", user, "-d", database]
+          : ["-h", host, "-p", port, "-U", user, "-d", database, "--clean", "--if-exists", "--no-owner", "--no-privileges", "--no-acl", "-1"];
 
-            const key = process.env.BACKUP_ENCRYPTION_KEY!;
-            const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, "sha256");
-            decipher = crypto.createDecipheriv("aes-256-gcm", derivedKey, iv);
-            decipher.setAuthTag(tag);
+        const proc = spawn(cmd, args, {
+          env: { ...process.env, PGPASSWORD: password },
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
 
-            headerRead = true;
-            if (encryptedData.length > 0) {
-              proc.stdin.write(decipher.update(encryptedData));
+        s3Stream.on("data", (chunk: Buffer) => {
+          if (!headerRead) {
+            buffer = Buffer.concat([buffer, chunk]);
+            if (buffer.length >= 44) {
+              const salt = buffer.slice(0, 16);
+              const iv = buffer.slice(16, 28);
+              const tag = buffer.slice(28, 44);
+              const encryptedData = buffer.slice(44);
+
+              const key = process.env.BACKUP_ENCRYPTION_KEY!;
+              const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, "sha256");
+              decipher = crypto.createDecipheriv("aes-256-gcm", derivedKey, iv);
+              decipher.setAuthTag(tag);
+
+              headerRead = true;
+              if (encryptedData.length > 0) {
+                proc.stdin.write(decipher.update(encryptedData));
+              }
             }
+          } else {
+            proc.stdin.write(decipher.update(chunk));
           }
-        } else {
-          proc.stdin.write(decipher.update(chunk));
-        }
-      });
+        });
 
       s3Stream.on("end", () => {
         if (decipher) {

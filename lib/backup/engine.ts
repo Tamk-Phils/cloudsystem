@@ -71,34 +71,45 @@ export async function performDatabaseBackup(customDescription?: string) {
     const database = url.pathname.slice(1);
 
     emitStatus("Checking Environment", 5);
+    let useBinaryDump = true;
     try {
       await execFilePromise("pg_dump", ["--version"]);
     } catch (e) {
-      logToFile("pg_dump not found in system PATH. Ensure postgresql-client is installed or binaries are bundled.");
-      throw new Error("System Error: pg_dump binary not found. This environment (likely Netlify/Lambda) does not have database tools installed. Please use a VPS or a platform that supports system binaries.");
+      logToFile("pg_dump not found. Switching to Universal Fallback (SDK-based snapshot)...");
+      useBinaryDump = false;
     }
 
-    emitStatus("Generating SQL", 10);
-    
-    // Switch to plain SQL format for better reliability and debugging
-    await execFilePromise(
-      "pg_dump",
-      [
-        "-h", host, "-p", port, "-U", user, "-d", database, 
-        "-f", tempPath, 
-        "--clean", 
-        "--if-exists", 
-        "--no-owner", 
-        "--no-privileges", 
-        "--no-acl",
-        "-n", "public"
-      ],
-      { env: { ...process.env, PGPASSWORD: password } }
-    );
+    if (useBinaryDump) {
+      emitStatus("Generating SQL", 10);
+      await execFilePromise(
+        "pg_dump",
+        [
+          "-h", host, "-p", port, "-U", user, "-d", database, 
+          "-f", tempPath, 
+          "--clean", "--if-exists", "--no-owner", "--no-privileges", "--no-acl", "-n", "public"
+        ],
+        { env: { ...process.env, PGPASSWORD: password } }
+      );
+    } else {
+      emitStatus("SDK Snapshotting", 15);
+      const { data: students } = await supabaseAdmin.from("school_students").select("*");
+      const { data: staff } = await supabaseAdmin.from("school_staff").select("*");
+      
+      const virtualImage = JSON.stringify({
+        format: "virtual-image-v1",
+        tables: { school_students: students, school_staff: staff },
+        timestamp: new Date().toISOString()
+      });
+      
+      fs.writeFileSync(tempPath, virtualImage);
+      // Change filename to reflect JSON format
+      filename = filename.replace(".sql", ".json");
+      encryptedFilename = `${filename}.enc`;
+    }
 
     emitStatus("Encrypting (AES-256)", 60);
-    const sqlBuffer = fs.readFileSync(tempPath);
-    const encryptedBuffer = encrypt(sqlBuffer, process.env.BACKUP_ENCRYPTION_KEY!);
+    const dumpBuffer = fs.readFileSync(tempPath);
+    const encryptedBuffer = encrypt(dumpBuffer, process.env.BACKUP_ENCRYPTION_KEY!);
     const s3Key = `backups/database/${encryptedFilename}`;
     
     emitStatus("Uploading to AWS S3", 80);
@@ -113,7 +124,7 @@ export async function performDatabaseBackup(customDescription?: string) {
         status: "completed",
         s3_key: s3Key,
         type: "database",
-        description: finalDescription
+        description: `${finalDescription} ${useBinaryDump ? "(Full SQL)" : "(SDK Snapshot)"}`
       })
       .select()
       .single();
