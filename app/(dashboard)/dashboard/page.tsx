@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [restoreState, setRestoreState] = useState<{ status: string; progress: number } | null>(null);
 
-  useEffect(() => {
+  const fetchRecentBackups = () => {
     fetch("/api/backups")
       .then(res => res.json())
       .then(data => {
@@ -51,7 +51,9 @@ export default function DashboardPage() {
           }));
         }
       });
+  };
 
+  useEffect(() => {
     // REAL-TIME SOCKETS REMOVED FOR NETLIFY COMPATIBILITY (PREVENTS 404s)
     const interval = setInterval(() => {
       fetchRecentBackups();

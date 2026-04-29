@@ -27,6 +27,7 @@ export default function SchoolPage() {
   const [formData, setFormData] = useState({ full_name: "", id: "", department: "", email: "", designation: "" });
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
     // REAL-TIME SOCKETS REMOVED FOR NETLIFY COMPATIBILITY (PREVENTS 404s)
     fetchData();
   }, []);

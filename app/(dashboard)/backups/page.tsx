@@ -35,6 +35,7 @@ export default function BackupsPage() {
   const [backingUp, setBackingUp] = useState(false);
   const [restoreState, setRestoreState] = useState<{ status: string; progress: number } | null>(null);
 
+  useEffect(() => {
     fetchBackups();
   }, []);
 
