@@ -29,7 +29,17 @@ export default function SchoolPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const socket = io();
+    const socket = io({
+      reconnectionAttempts: 3,
+      timeout: 5000,
+      transports: ["websocket", "polling"]
+    });
+
+    socket.on("connect_error", () => {
+      console.warn("Socket connection failed. Real-time updates might be disabled.");
+      socket.disconnect();
+    });
+
     socket.on("backup_status", (data) => {
       setLiveStatus(data);
       if (data.status === "completed") {
@@ -170,8 +180,8 @@ export default function SchoolPage() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-sm min-w-[600px]">
             <thead className="bg-white/[0.01] text-muted-foreground font-bold border-b border-white/[0.05]">
               <tr>
                 <th className="px-8 py-5 uppercase tracking-widest text-[10px]">Full Name</th>

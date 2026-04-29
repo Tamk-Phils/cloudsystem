@@ -6,10 +6,14 @@ import { getS3Stream } from "../aws/s3";
 import { supabaseAdmin } from "../supabase/admin";
 import { getIO } from "../socket";
 
-const debugLogPath = path.join(process.cwd(), "BACKUP_DEBUG.log");
+const debugLogPath = path.join("/tmp", "BACKUP_DEBUG.log");
 function logToFile(msg: string) {
   const line = `[${new Date().toISOString()}] RESTORE: ${msg}\n`;
-  fs.appendFileSync(debugLogPath, line);
+  try {
+    fs.appendFileSync(debugLogPath, line);
+  } catch (e) {
+    console.error("Failed to write to debug log:", e);
+  }
 }
 
 let lastEmitTime = 0;

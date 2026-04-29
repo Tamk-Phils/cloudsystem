@@ -9,10 +9,14 @@ import { getIO } from "../socket";
 
 const execFilePromise = promisify(execFile);
 
-const debugLogPath = path.join(process.cwd(), "BACKUP_DEBUG.log");
+const debugLogPath = path.join("/tmp", "BACKUP_DEBUG.log");
 function logToFile(msg: string) {
   const line = `[${new Date().toISOString()}] ${msg}\n`;
-  fs.appendFileSync(debugLogPath, line);
+  try {
+    fs.appendFileSync(debugLogPath, line);
+  } catch (e) {
+    console.error("Failed to write to debug log:", e);
+  }
 }
 
 function emitStatus(status: string, progress: number) {

@@ -56,9 +56,9 @@ export default function LogsPage() {
               </div>
               
               <div className="flex-1 space-y-1">
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
                   <h4 className="font-bold text-lg capitalize">{log.action.replace(/_/g, ' ')}</h4>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-accent px-2 py-1 rounded-lg">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-accent px-2 py-1 rounded-lg shrink-0">
                     <Clock className="w-3 h-3" />
                     {new Date(log.timestamp).toLocaleString()}
                   </div>

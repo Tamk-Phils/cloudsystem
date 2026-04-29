@@ -190,8 +190,8 @@ export default function BackupsPage() {
       </div>
 
       <div className="premium-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left min-w-[800px]">
           <thead>
             <tr className="border-b border-white/[0.05] bg-white/[0.01]">
               <th className="px-6 py-5 font-bold text-xs uppercase tracking-widest text-muted-foreground">Entity Identifier</th>

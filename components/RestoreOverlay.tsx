@@ -28,8 +28,17 @@ export default function RestoreOverlay({ initialStatus, initialProgress, onClose
   }, [initialStatus, initialProgress]);
 
   useEffect(() => {
-    const socket = io();
+    const socket = io({
+      reconnectionAttempts: 3,
+      timeout: 5000,
+      transports: ["websocket", "polling"]
+    });
     
+    socket.on("connect_error", () => {
+      console.warn("Socket connection failed. Progress logs might be disabled.");
+      socket.disconnect();
+    });
+
     socket.on("restore_status", (data) => {
       // Only update if we haven't reached a final state via props
       setStatus(current => {

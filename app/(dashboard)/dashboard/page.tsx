@@ -53,7 +53,17 @@ export default function DashboardPage() {
         }
       });
 
-    const socket = io();
+    const socket = io({
+      reconnectionAttempts: 3,
+      timeout: 5000,
+      transports: ["websocket", "polling"]
+    });
+
+    socket.on("connect_error", () => {
+      console.warn("Socket connection failed. Real-time updates might be disabled.");
+      socket.disconnect();
+    });
+
     socket.on("backup_status", (data) => {
       if (data.status === "completed") {
         window.location.reload(); 
@@ -211,7 +221,7 @@ export default function DashboardPage() {
                       <FileCode size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold truncate w-24 group-hover:text-primary transition-colors font-outfit">
+                      <p className="text-sm font-bold truncate flex-1 min-w-0 group-hover:text-primary transition-colors font-outfit">
                         {backup.description || backup.filename.replace(".enc", "")}
                       </p>
                       <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-0.5 font-mono">
@@ -219,8 +229,8 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0 ml-2 overflow-hidden max-w-[120px]">
-                    <span className="text-[8px] text-muted-foreground font-mono bg-white/[0.05] px-1 py-0.5 rounded truncate w-full block text-right" title={backup.filename}>
+                  <div className="flex flex-col items-end gap-1 shrink-0 ml-2 overflow-hidden">
+                    <span className="text-[8px] text-muted-foreground font-mono bg-white/[0.05] px-1 py-0.5 rounded truncate max-w-[80px] sm:max-w-[120px] block text-right" title={backup.filename}>
                       {backup.filename}
                     </span>
                     <span className="text-[8px] text-emerald-500/50 font-bold uppercase tracking-tighter flex items-center gap-0.5">
