@@ -42,7 +42,9 @@ export default function DashboardPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setBackups(data.slice(0, 5));
+          // Filter out legacy binary backups that cause errors on Netlify
+          const compatibleBackups = data.filter(b => b.type === "files" || b.filename.includes(".json"));
+          setBackups(compatibleBackups.slice(0, 5));
           setStats(prev => ({
             ...prev,
             totalBackups: data.length,

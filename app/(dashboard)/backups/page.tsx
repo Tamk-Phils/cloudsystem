@@ -44,7 +44,11 @@ export default function BackupsPage() {
     fetch("/api/backups")
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) setBackups(data);
+        if (Array.isArray(data)) {
+          // Filter out legacy binary backups that cause errors on Netlify
+          const compatibleBackups = data.filter(b => b.type === "files" || b.filename.includes(".json"));
+          setBackups(compatibleBackups);
+        }
         setLoading(false);
       });
   };

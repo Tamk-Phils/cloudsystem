@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   LogOut,
   School,
+  FolderOpen,
   Menu,
   X
 } from "lucide-react";
@@ -25,6 +26,7 @@ function cn(...inputs: ClassValue[]) {
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "School System", href: "/school", icon: School },
+  { name: "File Manager", href: "/files", icon: FolderOpen },
   { name: "Backups", href: "/backups", icon: Database },
   { name: "Recovery", href: "/recovery", icon: RefreshCcw },
   { name: "System Logs", href: "/logs", icon: History },

@@ -94,10 +94,11 @@ export async function performDatabaseBackup(customDescription?: string) {
       emitStatus("SDK Snapshotting", 15);
       const { data: students } = await supabaseAdmin.from("school_students").select("*");
       const { data: staff } = await supabaseAdmin.from("school_staff").select("*");
+      const { data: files } = await supabaseAdmin.from("system_files").select("*");
       
       const virtualImage = JSON.stringify({
         format: "virtual-image-v1",
-        tables: { school_students: students, school_staff: staff },
+        tables: { school_students: students, school_staff: staff, system_files: files },
         timestamp: new Date().toISOString()
       });
       
