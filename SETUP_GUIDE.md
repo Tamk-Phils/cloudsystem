@@ -18,10 +18,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
 # AWS S3
-AWS_ACCESS_KEY_ID=your-aws-access-key-id
-AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
-AWS_REGION=your-aws-region
-AWS_S3_BUCKET_NAME=your-s3-bucket-name
+# AWS S3 (Renamed for Netlify compatibility)
+STORAGE_AWS_ACCESS_KEY_ID=your-aws-access-key-id
+STORAGE_AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
+STORAGE_AWS_REGION=your-aws-region
+STORAGE_AWS_BUCKET_NAME=your-s3-bucket-name
 
 # Backup Encryption (32 characters recommended)
 BACKUP_ENCRYPTION_KEY=your-32-byte-encryption-key

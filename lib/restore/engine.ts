@@ -60,6 +60,14 @@ export async function performDatabaseRestore(backupId: string) {
     const user = url.username;
     const database = url.pathname.slice(1);
 
+    emitRestoreStatus("Checking Environment", 10, "Verifying system binaries...", true);
+    try {
+      execSync("psql --version");
+    } catch (e) {
+      logToFile("psql not found in system PATH.");
+      throw new Error("System Error: psql binary not found. This environment does not support shell-based restoration.");
+    }
+
     emitRestoreStatus("Syncing", 40, "Opening archive stream...", true);
     const s3Stream = await getS3Stream(backup.s3_key) as any;
 

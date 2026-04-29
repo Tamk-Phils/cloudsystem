@@ -70,6 +70,14 @@ export async function performDatabaseBackup(customDescription?: string) {
     const user = url.username;
     const database = url.pathname.slice(1);
 
+    emitStatus("Checking Environment", 5);
+    try {
+      await execFilePromise("pg_dump", ["--version"]);
+    } catch (e) {
+      logToFile("pg_dump not found in system PATH. Ensure postgresql-client is installed or binaries are bundled.");
+      throw new Error("System Error: pg_dump binary not found. This environment (likely Netlify/Lambda) does not have database tools installed. Please use a VPS or a platform that supports system binaries.");
+    }
+
     emitStatus("Generating SQL", 10);
     
     // Switch to plain SQL format for better reliability and debugging
