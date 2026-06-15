@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth/context";
 import { 
   LayoutDashboard, 
   Database, 
@@ -36,6 +37,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   // Close sidebar on navigation
   useEffect(() => {
@@ -104,8 +106,16 @@ export default function Sidebar() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/[0.05]">
-          <button className="flex items-center gap-3 px-4 py-2.5 w-full rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all text-sm">
+        <div className="p-4 border-t border-white/[0.05] space-y-2">
+          {user?.email && (
+            <p className="text-[10px] text-muted-foreground px-4 truncate" title={user.email}>
+              {user.email}
+            </p>
+          )}
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 px-4 py-2.5 w-full rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all text-sm"
+          >
             <LogOut className="w-4.5 h-4.5" />
             <span>Sign Out</span>
           </button>

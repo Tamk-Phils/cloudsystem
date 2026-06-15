@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireAuth, isAuthError } from "@/lib/supabase/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
   console.log("GET /api/backups triggered");
   try {
     const { data: backups, error } = await supabaseAdmin

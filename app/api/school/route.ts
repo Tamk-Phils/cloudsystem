@@ -1,8 +1,11 @@
+import { requireAuth, isAuthError } from "@/lib/supabase/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { performDatabaseBackup } from "@/lib/backup/engine";
-import { sendAlertEmail } from "@/lib/alerts";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
+
   try {
     const { data: students, error: sErr } = await supabaseAdmin.from("school_students").select("*");
     const { data: staff, error: tErr } = await supabaseAdmin.from("school_staff").select("*");
@@ -16,6 +19,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
+
   try {
     const { type, data } = await req.json();
     const table = type === "student" ? "school_students" : "school_staff";
@@ -38,6 +44,9 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -58,4 +67,3 @@ export async function DELETE(req: Request) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 }
-

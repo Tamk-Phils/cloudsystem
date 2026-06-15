@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { performDatabaseBackup } from "@/lib/backup/engine";
 import { sendAlertEmail } from "@/lib/alerts";
+import { requireAuth, isAuthError } from "@/lib/supabase/auth";
 
-export async function POST() {
+export async function POST(req: Request) {
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
   console.log("POST /api/backup/manual triggered");
   try {
     const backup = await performDatabaseBackup();
