@@ -27,11 +27,11 @@ export async function POST(req: Request) {
 
     if (error) throw error;
 
-    // Insert a row in public.users with default role
+    // Insert a row in public.users with default role matching DB constraint
     const { error: profileError } = await supabaseAdmin.from("users").upsert({
       id: data.user.id,
       email: data.user.email,
-      role: "user",
+      role: "it_staff", // allowed values: 'admin' | 'it_staff'
     });
 
     if (profileError) throw profileError;

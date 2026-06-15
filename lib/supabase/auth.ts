@@ -33,7 +33,7 @@ export async function requireAuth(
     user: {
       id: data.user.id,
       email: data.user.email,
-      role: profile?.role ?? "user",
+      role: profile?.role ?? "it_staff", // allowed: 'admin' | 'it_staff'
     },
   };
 }
