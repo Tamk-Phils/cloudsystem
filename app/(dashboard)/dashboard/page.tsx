@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import RestoreOverlay from "@/components/RestoreOverlay";
+import { useAuthFetch } from "@/lib/auth/useAuthFetch";
 
 const StorageChart = dynamic(() => import("@/components/StorageChart"), { 
   ssr: false,
@@ -36,9 +37,10 @@ export default function DashboardPage() {
   const [backups, setBackups] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [restoreState, setRestoreState] = useState<{ status: string; progress: number } | null>(null);
+  const authFetch = useAuthFetch();
 
   const fetchRecentBackups = () => {
-    fetch("/api/backups")
+    authFetch("/api/backups")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -67,7 +69,7 @@ export default function DashboardPage() {
   const triggerBackup = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/backup/manual", { method: "POST" });
+      const res = await authFetch("/api/backup/manual", { method: "POST" });
       const data = await res.json();
       if (data.success) {
         alert("Backup triggered successfully!");
@@ -86,7 +88,7 @@ export default function DashboardPage() {
 
     setRestoreState({ status: "Initializing...", progress: 0 });
     try {
-      const res = await fetch("/api/restore", { 
+      const res = await authFetch("/api/restore", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ backupId: id })
@@ -102,7 +104,7 @@ export default function DashboardPage() {
 
   const handleDownload = async (id: string, encrypted: boolean = false) => {
     if (encrypted) {
-      const res = await fetch(`/api/backup/download?id=${id}&encrypted=true`);
+      const res = await authFetch(`/api/backup/download?id=${id}&encrypted=true`);
       const data = await res.json();
       if (data.url) {
         window.open(data.url, "_blank");

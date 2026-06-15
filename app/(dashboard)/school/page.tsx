@@ -15,6 +15,7 @@ import {
   X,
   AlertTriangle
 } from "lucide-react";
+import { useAuthFetch } from "@/lib/auth/useAuthFetch";
 
 export default function SchoolPage() {
   const [activeTab, setActiveTab] = useState<"students" | "staff">("students");
@@ -26,6 +27,7 @@ export default function SchoolPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<{ id: string; type: string } | null>(null);
   const [formData, setFormData] = useState({ full_name: "", id: "", department: "", email: "", designation: "" });
   const [submitting, setSubmitting] = useState(false);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     // REAL-TIME SOCKETS REMOVED FOR NETLIFY COMPATIBILITY (PREVENTS 404s)
@@ -35,7 +37,7 @@ export default function SchoolPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/school");
+      const res = await authFetch("/api/school");
       const d = await res.json();
       setData(d);
     } finally {
@@ -59,7 +61,7 @@ export default function SchoolPage() {
         ...(activeTab === "students" ? { email: formData.email } : { designation: formData.designation })
       };
 
-      const res = await fetch("/api/school", {
+      const res = await authFetch("/api/school", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, data: payload })
@@ -82,7 +84,7 @@ export default function SchoolPage() {
     setSubmitting(true);
     try {
       const { id, type } = isDeleteModalOpen;
-      const res = await fetch(`/api/school?type=${type}&id=${id}`, { method: "DELETE" });
+      const res = await authFetch(`/api/school?type=${type}&id=${id}`, { method: "DELETE" });
       if (res.ok) {
         setIsDeleteModalOpen(null);
         fetchData();

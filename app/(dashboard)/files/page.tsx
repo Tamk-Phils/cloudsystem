@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useAuthFetch } from "@/lib/auth/useAuthFetch";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -29,6 +30,7 @@ export default function FilesPage() {
   
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<{ id: string; filename: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     fetchFiles();
@@ -37,7 +39,7 @@ export default function FilesPage() {
   const fetchFiles = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/system-files");
+      const res = await authFetch("/api/system-files");
       const data = await res.json();
       if (Array.isArray(data)) {
         setFiles(data);
@@ -56,7 +58,7 @@ export default function FilesPage() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/system-files", {
+      const res = await authFetch("/api/system-files", {
         method: "POST",
         body: formData,
       });
@@ -78,7 +80,7 @@ export default function FilesPage() {
     setSubmitting(true);
     try {
       const { id } = isDeleteModalOpen;
-      const res = await fetch(`/api/system-files?id=${id}`, { method: "DELETE" });
+      const res = await authFetch(`/api/system-files?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         setIsDeleteModalOpen(null);
         fetchFiles();

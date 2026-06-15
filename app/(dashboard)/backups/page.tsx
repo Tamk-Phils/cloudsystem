@@ -23,6 +23,7 @@ import {
 import RestoreOverlay from "@/components/RestoreOverlay";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useAuthFetch } from "@/lib/auth/useAuthFetch";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -34,6 +35,7 @@ export default function BackupsPage() {
   const [uploading, setUploading] = useState(false);
   const [backingUp, setBackingUp] = useState(false);
   const [restoreState, setRestoreState] = useState<{ status: string; progress: number } | null>(null);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     fetchBackups();
@@ -41,7 +43,7 @@ export default function BackupsPage() {
 
   const fetchBackups = () => {
     setLoading(true);
-    fetch("/api/backups")
+    authFetch("/api/backups")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -56,7 +58,7 @@ export default function BackupsPage() {
   const triggerDatabaseBackup = async () => {
     setBackingUp(true);
     try {
-      const res = await fetch("/api/backup/manual", { method: "POST" });
+      const res = await authFetch("/api/backup/manual", { method: "POST" });
       const data = await res.json();
       if (!data.success) {
         alert("Backup failed: " + data.error);
@@ -77,7 +79,7 @@ export default function BackupsPage() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/backup/files", {
+      const res = await authFetch("/api/backup/files", {
         method: "POST",
         body: formData,
       });
@@ -95,7 +97,7 @@ export default function BackupsPage() {
 
   const handleDownload = async (id: string, encrypted: boolean = false) => {
     if (encrypted) {
-      const res = await fetch(`/api/backup/download?id=${id}&encrypted=true`);
+      const res = await authFetch(`/api/backup/download?id=${id}&encrypted=true`);
       const data = await res.json();
       if (data.url) {
         window.open(data.url, "_blank");
@@ -110,9 +112,10 @@ export default function BackupsPage() {
       return;
     }
 
-    setRestoreState({ status: "Initializing...", progress: 0 });
     try {
-      const res = await fetch("/api/restore", { 
+      setRestoreState({ status: "Preparing database for recovery...", progress: 10 });
+      
+      const res = await authFetch("/api/restore", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ backupId: id })

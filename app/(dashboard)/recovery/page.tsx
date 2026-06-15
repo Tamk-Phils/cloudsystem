@@ -12,12 +12,14 @@ import {
   FileCode
 } from "lucide-react";
 import RestoreOverlay from "@/components/RestoreOverlay";
+import { useAuthFetch } from "@/lib/auth/useAuthFetch";
 
 export default function RecoveryPage() {
   const [backups, setBackups] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [selectedBackup, setSelectedBackup] = useState("");
   const [restoreState, setRestoreState] = useState<{ status: string; progress: number } | null>(null);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     fetchBackups();
@@ -25,7 +27,7 @@ export default function RecoveryPage() {
   }, []);
 
   const fetchBackups = () => {
-    fetch("/api/backups")
+    authFetch("/api/backups")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -37,7 +39,7 @@ export default function RecoveryPage() {
   };
 
   const fetchHistory = () => {
-    fetch("/api/recovery/logs")
+    authFetch("/api/recovery/logs")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setHistory(data);
@@ -50,7 +52,7 @@ export default function RecoveryPage() {
 
     setRestoreState({ status: "Initializing...", progress: 0 });
     try {
-      const res = await fetch("/api/restore", {
+      const res = await authFetch("/api/restore", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ backupId: selectedBackup }),
